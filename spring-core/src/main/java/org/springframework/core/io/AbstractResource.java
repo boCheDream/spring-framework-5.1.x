@@ -47,6 +47,7 @@ public abstract class AbstractResource implements Resource {
 	 * This implementation checks whether a File can be opened,
 	 * falling back to whether an InputStream can be opened.
 	 * This will cover both directories and content resources.
+	 * 判断文件是否存在，若发生异常则把资源流进行关闭
 	 */
 	@Override
 	public boolean exists() {
@@ -69,6 +70,7 @@ public abstract class AbstractResource implements Resource {
 	/**
 	 * This implementation always returns {@code true} for a resource
 	 * that {@link #exists() exists} (revised as of 5.1).
+	 * 是否可读，若文件存在则认为可读
 	 */
 	@Override
 	public boolean isReadable() {
@@ -77,6 +79,7 @@ public abstract class AbstractResource implements Resource {
 
 	/**
 	 * This implementation always returns {@code false}.
+	 * 是否打开，默认未打开
 	 */
 	@Override
 	public boolean isOpen() {
@@ -85,6 +88,7 @@ public abstract class AbstractResource implements Resource {
 
 	/**
 	 * This implementation always returns {@code false}.
+	 * 默认不是文件类型资源
 	 */
 	@Override
 	public boolean isFile() {
@@ -94,6 +98,7 @@ public abstract class AbstractResource implements Resource {
 	/**
 	 * This implementation throws a FileNotFoundException, assuming
 	 * that the resource cannot be resolved to a URL.
+	 * 抛出FileNotFoundException，交由子类进行实现;
 	 */
 	@Override
 	public URL getURL() throws IOException {
@@ -101,6 +106,7 @@ public abstract class AbstractResource implements Resource {
 	}
 
 	/**
+	 * 根据URL 构建URI
 	 * This implementation builds a URI based on the URL returned
 	 * by {@link #getURL()}.
 	 */
@@ -116,6 +122,7 @@ public abstract class AbstractResource implements Resource {
 	}
 
 	/**
+	 * 抛出FileNotFoundException，交由子类进行实现;
 	 * This implementation throws a FileNotFoundException, assuming
 	 * that the resource cannot be resolved to an absolute file path.
 	 */
@@ -125,6 +132,7 @@ public abstract class AbstractResource implements Resource {
 	}
 
 	/**
+	 * 根据InputStream获取到对应的ReadableByteChannel
 	 * This implementation returns {@link Channels#newChannel(InputStream)}
 	 * with the result of {@link #getInputStream()}.
 	 * <p>This is the same as in {@link Resource}'s corresponding default method
@@ -136,6 +144,7 @@ public abstract class AbstractResource implements Resource {
 	}
 
 	/**
+	 * 获取内容字节长度（全部读取一遍来计算）
 	 * This implementation reads the entire InputStream to calculate the
 	 * content length. Subclasses will almost always be able to provide
 	 * a more optimal version of this, e.g. checking a File length.
@@ -163,6 +172,7 @@ public abstract class AbstractResource implements Resource {
 	}
 
 	/**
+	 * 上次修改的时间点
 	 * This implementation checks the timestamp of the underlying File,
 	 * if available.
 	 * @see #getFileForLastModifiedCheck()

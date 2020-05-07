@@ -46,6 +46,9 @@ public interface ResourceLoader {
 
 
 	/**
+	 * 根据资源的位置location来获取对应Resource实例
+	 * 支持三种url
+	 * Resource不一定是存在的资源，所以你需要获取后调用exists方法来进行判断是否存在
 	 * Return a Resource handle for the specified resource location.
 	 * <p>The handle should always be a reusable resource descriptor,
 	 * allowing for multiple {@link Resource#getInputStream()} calls.

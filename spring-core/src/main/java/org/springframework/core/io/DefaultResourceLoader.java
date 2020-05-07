@@ -56,6 +56,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 
 
 	/**
+	 * 构建一个默认资源加载器-Thread.currentThread().getContextClassLoader();
 	 * Create a new DefaultResourceLoader.
 	 * <p>ClassLoader access will happen using the thread context class loader
 	 * at the time of this ResourceLoader's initialization.
@@ -98,6 +99,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	}
 
 	/**
+	 * 向此资源加载器注册给定的解析器，允许其他的协议被处理
 	 * Register the given resolver with this resource loader, allowing for
 	 * additional protocols to be handled.
 	 * <p>Any such resolver will be invoked ahead of this loader's standard
@@ -144,20 +146,30 @@ public class DefaultResourceLoader implements ResourceLoader {
 	public Resource getResource(String location) {
 		Assert.notNull(location, "Location must not be null");
 
+		//注意 此处返回的resource，都是以本类中的classLoader进行返回
+
+		//1.遍历ProtocolResolver集合，若通过这个能获取到资源则return resource
 		for (ProtocolResolver protocolResolver : getProtocolResolvers()) {
 			Resource resource = protocolResolver.resolve(location, this);
 			if (resource != null) {
 				return resource;
 			}
 		}
-
+		//2.1 location以"/"开头，则调用ResourceByPath方法构造ClassPathContextResource 返回
 		if (location.startsWith("/")) {
 			return getResourceByPath(location);
 		}
+		//2.2 location以"classpath:" 开头，则构建一个ClassPathResource
 		else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
 			return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
 		}
 		else {
+			//2.3否则 尝试用URL的资源加载器的方式进行
+			// 2.3.1 先构建一个URL
+			//2.3.2 是否是一个File类型资源，若是则 构建一个FileRulResource返回
+			//2.3.3 否则构建一个URLResource返回
+			//2.3.4 若抛出MalformedURLException异常则直接根据path构建一个ClassPathContextResource返回，
+			// 所以可以看出并不确定Resource是否存在，需要使用方自己判断
 			try {
 				// Try to parse the location as a URL...
 				URL url = new URL(location);
